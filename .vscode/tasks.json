@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build OS",
+      "type": "shell",
+      "command": "make",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": "$gcc"
+    },
+    {
+      "label": "Run in QEMU",
+      "type": "shell",
+      "command": "make run",
+      "dependsOn": "Build OS"
+    },
+    {
+      "label": "Debug (QEMU + GDB)",
+      "type": "shell",
+      "command": "make debug",
+      "dependsOn": "Build OS",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": "." },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Listening on"
+        }
+      }
+    }
+  ]
+}
