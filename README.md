@@ -2,7 +2,7 @@
 
 ![Liege](images/banner.png)        
 
-![Status](https://img.shields.io/badge/status-early_development-3b82f6) ![Arch](https://img.shields.io/badge/arch-x86__32--bit-10b981) ![Language](https://img.shields.io/badge/lang-C%20%2F%20ASM-f59e0b) ![Boot](https://img.shields.io/badge/boot-GRUB-8b5cf6) ![Platform](https://img.shields.io/badge/platform-bare--metal-ef4444)
+![Status](https://img.shields.io/badge/status-early_development-3b82f6?style=for-the-badge) ![Arch](https://img.shields.io/badge/arch-x86__32--bit-10b981?style=for-the-badge) ![Language](https://img.shields.io/badge/lang-C%20%2F%20ASM-f59e0b?style=for-the-badge) ![Boot](https://img.shields.io/badge/boot-GRUB-8b5cf6?style=for-the-badge) ![Platform](https://img.shields.io/badge/platform-bare--metal-ef4444?style=for-the-badge)
 
 *a bare-metal hobby operating system built from scratch*
 
