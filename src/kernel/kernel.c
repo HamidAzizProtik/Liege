@@ -67,6 +67,25 @@ static void print_center(const char *str) {
     }
 }
 
+/* prints a hexadecimal number */
+void print_hex(unsigned int n) {
+    /* lookup table */
+    char digits[] = "0123456789abcdef";
+    
+    /* buffer to hold 8 hex digits */
+    char buf[9];
+    buf[8] = '\0'; /* null terminator — marks end of string */
+    
+    /* fill buffer from right to left */
+    for (int i = 7; i >= 0; i--) {
+        buf[i] = digits[n & 0xF];  /* extract lowest 4 bits, look up character */
+        n >>= 4;                   /* shift right by 4 to get next digit */
+    }
+    
+    print("0x"); /* prefix so it looks like 0xB8000 */
+    print(buf);  /* print the 8 hex digits */
+}
+
 /* actual kernel code */
 void kernel_main(void) {
     clear(); /* clearing screen before operation */
@@ -74,6 +93,9 @@ void kernel_main(void) {
     print_center("Liege OS\n"); /* \n moves cursor to next line automatically */
     print_center("Hello from Liege!\n");
     print("test\n");
+    print("VGA buffer is at: ");
+    print_hex(0xB8000);
+    print("\n");
 
     while (1) {}  /* spin forever */
 }
