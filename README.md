@@ -1,8 +1,18 @@
-# Liege OS
+<div align="center">
 
-Liege is a minimal operating system built from scratch to understand how computers actually work at the deepest level.
+![Liege](images/banner.png)        
+
+![Status](https://img.shields.io/badge/status-early_development-3b82f6) ![Arch](https://img.shields.io/badge/arch-x86__32--bit-10b981) ![Language](https://img.shields.io/badge/lang-C%20%2F%20ASM-f59e0b) ![Boot](https://img.shields.io/badge/boot-GRUB-8b5cf6) ![Platform](https://img.shields.io/badge/platform-bare--metal-ef4444)
+
+*a bare-metal hobby operating system built from scratch*
+
+</div>
+
+Liege is a minimal operating system in early development built from scratch to understand how computers actually work at the deepest level.
+
 No Linux underneath it. No Windows. No standard library. Just code talking directly to hardware.
 
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png">
 
 ## Why make an OS
 
@@ -10,6 +20,8 @@ I've been programming for a few years but always at a high level — Python with
 I wanted to understand what was underneath. Not just read about it, but build it. An OS felt like the hardest possible thing to start with, which is exactly what sounded right.
 
 I didn't expect to enjoy low level programming as much as I do. I didn't expect to like C. I didn't expect that staring at a black screen and slowly understanding it would be satisfying. But it is.
+
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png">
 
 ## What Liege is
 
@@ -19,7 +31,11 @@ The aesthetic goal is retrofuturistic — the feeling of a terminal from a futur
 
 The technical goal is educational — this is a project I'm building to learn, and the code reflects that.
 
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png">
+
 ## Current State
+
+![Liege booting](images/screenshot.png)
 
 Liege is early in development. Right now it:
 
@@ -27,6 +43,8 @@ Liege is early in development. Right now it:
 - Runs in 32 bit protected mode
 - Has a working print system with cursor tracking and center alignment
 - Displays a startup screen with a prompt
+
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png">
 
 ## Roadmap
 
@@ -36,6 +54,8 @@ The honest next steps in order:
 - A working shell 
 - Memory management
 - A simple filesystem
+
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png">
 
 ## Building
 
@@ -48,6 +68,8 @@ make run    # boot in QEMU
 make clean  # remove build artifacts
 ```
 
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png">
+
 ## Toolchain
 
 - i686-elf-gcc — cross compiler targeting bare metal x86
@@ -56,9 +78,11 @@ make clean  # remove build artifacts
 - GRUB — bootloader (will be replaced with a custom one)
 - GDB — debugger attached to QEMU over a socket
 
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png">
+
 ## About
 
-I'm Hamid, 15 years old, and I like making things that i would use myself and Liege is one of those things.
+I'm Hamid, 15 years old, and I like making things that I would use myself and Liege is one of those things.
 
 The hardest parts have been understanding assembly and knowing where I am in a system that gives you no feedback when something goes wrong. The most surprising part has been how much I enjoy it.
 
