@@ -58,7 +58,7 @@ make clean  # remove build artifacts
 
 ## About
 
-I'm Hamid, 15, and I like making things that i would use myself and Liege is one of those things.
+I'm Hamid, 15 years old, and I like making things that i would use myself and Liege is one of those things.
 
 The hardest parts have been understanding assembly and knowing where I am in a system that gives you no feedback when something goes wrong. The most surprising part has been how much I enjoy it.
 
