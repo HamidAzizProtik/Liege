@@ -74,7 +74,6 @@ void kernel_main(void) {
     print_center("Liege OS\n"); /* \n moves cursor to next line automatically */
     print_center("Hello from Liege!\n");
     print("test\n");
-    print("liege> ");
 
     while (1) {}  /* spin forever */
 }
