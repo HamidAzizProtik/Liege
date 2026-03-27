@@ -2,7 +2,7 @@
 #define VGA_WIDTH  80 /* a preprocessor directive telling the computer that vga height and width is 80 and 25 respectively*/
 #define VGA_HEIGHT 25
 
-/* a pointer called vgs that lets the program write directly to the vgs buffer */
+/* a pointer called vga that lets the program write directly to the vgs buffer */
 static unsigned short *vga = (unsigned short *)0xB8000;
 
 /* creating a function that clears the screen */
