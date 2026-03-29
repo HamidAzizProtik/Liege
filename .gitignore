@@ -4,3 +4,4 @@ build/
 *.elf
 *.iso
 IDEAS.md
+debug.txt

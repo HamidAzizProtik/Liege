@@ -1,3 +1,9 @@
+#include "cpu/idt.h"
+#include "drivers/keyboard.h"
+
+/* raw interrupt entry point defined in isr.asm */
+extern void irq1_handler(void);
+
 /* Write directly to VGA text buffer — no printf, no stdlib */
 #define VGA_WIDTH  80 /* a preprocessor directive telling the computer that vga width and height is 80 and 25 respectively */
 #define VGA_HEIGHT 25
@@ -152,6 +158,13 @@ static void panic(const char *msg) {
 void kernel_main(void) {
     clear();
 
+    /* initialize IDT and keyboard before anything else */
+    idt_init();
+    keyboard_init();
+
+    /* enable interrupts — CPU will now respond to hardware signals */
+    __asm__ volatile ("sti");
+
     /* banner in magenta */
     set_color(COLOR_MAGENTA);
     print("\n");
@@ -173,38 +186,35 @@ void kernel_main(void) {
     print_center("========================================");
     print("\n\n");
 
-
-    /* SYSTEM STATUS AND PROMPT IS PLACEHOLDER FOR FUTURE ADDITIONS */
-
     /* system status heading */
     set_color(COLOR_BRIGHT_WHITE);
     print("  SYSTEM\n");
 
-    /* OK items in green */
+    /* kernel loaded — always true if we are running */
     set_color(COLOR_LIGHT_GREEN);
     print("  [ OK ]");
     set_color(COLOR_BRIGHT_WHITE);
     print("  Kernel loaded\n");
 
-    /* vga */
+    /* VGA initialized — always true if we can print */
     set_color(COLOR_LIGHT_GREEN);
     print("  [ OK ]");
     set_color(COLOR_BRIGHT_WHITE);
     print("  VGA initialized\n");
 
-    /* not ready items in yellow */
+    /* keyboard — initialized but not confirmed working yet */
     set_color(COLOR_LIGHT_YELLOW);
     print("  [ -- ]");
     set_color(COLOR_GRAY);
     print("  Keyboard        not ready\n");
 
-    /* memory map */
+    /* memory map — not implemented yet */
     set_color(COLOR_LIGHT_YELLOW);
     print("  [ -- ]");
     set_color(COLOR_GRAY);
     print("  Memory map      not ready\n");
 
-    /* filesystem */
+    /* filesystem — not implemented yet */
     set_color(COLOR_LIGHT_YELLOW);
     print("  [ -- ]");
     set_color(COLOR_GRAY);
@@ -215,11 +225,17 @@ void kernel_main(void) {
     print("\n");
     print_center("========================================");
     print("\n\n");
-    
-    /* prompt in cyan */
+
+    /* prompt in light blue */
     set_color(COLOR_LIGHT_BLUE);
     print("  / > ");
     set_color(COLOR_BRIGHT_WHITE); /* reset color after prompt */
 
-    while (1) {}  /* spin forever */
+    /* main loop — echo typed characters to screen */
+    while (1) {
+        char c = keyboard_getchar();
+        if (c != 0) {
+            print_char(c);
+        }
+    }
 }
