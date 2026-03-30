@@ -22,15 +22,29 @@ static inline void outb(unsigned short port, unsigned char value) {
 /* 0 means no printable character for that scancode */
 static char scancode_table[128] = {
     0,   0,  '1', '2', '3', '4', '5', '6', '7', '8',  /* 0x00 - 0x09 */
-   '9', '0', '-', '=',  0,   0,  'q', 'w', 'e', 'r',  /* 0x0A - 0x13 */
-   't', 'y', 'u', 'i', 'o', 'p', '[', ']',  0,   0,   /* 0x14 - 0x1D */
+   '9', '0', '-', '=', '\b', 0,  'q', 'w', 'e', 'r',  /* 0x0A - 0x13 */
+   't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', 0,   /* 0x14 - 0x1D */
    'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',  /* 0x1E - 0x27 */
   '\'', '`',  0, '\\','z', 'x', 'c', 'v', 'b', 'n',   /* 0x28 - 0x31 */
    'm', ',', '.', '/',  0,   0,   0,  ' ',  0,   0,   /* 0x32 - 0x3B */
 };
 
+/* scancode to uppercase character lookup table */
+static char scancode_table_upper[128] = {
+    0,   0,  '!', '@', '#', '$', '%', '^', '&', '*',  /* 0x00 - 0x09 */
+   '(', ')', '_', '+', '\b', 0,  'Q', 'W', 'E', 'R',  /* 0x0A - 0x13 */
+   'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n', 0,   /* 0x14 - 0x1D */
+   'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':',  /* 0x1E - 0x27 */
+   '"', '~',  0, '|', 'Z', 'X', 'C', 'V', 'B', 'N',   /* 0x28 - 0x31 */
+   'M', '<', '>', '?',  0,   0,   0,  ' ',  0,   0,   /* 0x32 - 0x3B */
+};
+
 /* stores the last character pressed */
 static char last_key = 0;
+
+/* keyboard state */
+static int caps_lock = 0;  /* 0 = off, 1 = on */
+static int shift_pressed = 0;  /* 0 = not pressed, 1 = pressed */
 
 /* remaps the PIC so hardware interrupts use numbers 32-47 */
 /* without this keyboard interrupt collides with CPU exceptions */
@@ -58,14 +72,44 @@ void keyboard_handler(void) {
     /* read scancode from keyboard data port */
     unsigned char scancode = inb(0x60);
 
-    /* ignore key release events — bit 7 set means key was released */
-    if (scancode & 0x80) return;
+    /* handle key release events — bit 7 set means key was released */
+    if (scancode & 0x80) {
+        /* check if shift was released */
+        unsigned char released = scancode & 0x7F;
+        if (released == 0x2A || released == 0x36) {  /* left or right shift */
+            shift_pressed = 0;
+        }
+        return;
+    }
 
     /* ignore scancodes outside our table */
     if (scancode >= 128) return;
 
-    /* look up the character for this scancode */
-    char c = scancode_table[scancode];
+    /* handle shift keys */
+    if (scancode == 0x2A || scancode == 0x36) {  /* left or right shift */
+        shift_pressed = 1;
+        return;
+    }
+
+    /* handle caps lock toggle */
+    if (scancode == 0x3A) {  /* caps lock */
+        caps_lock = !caps_lock;
+        return;
+    }
+
+    /* determine which table to use based on shift and caps lock state */
+    char c;
+    if (shift_pressed) {
+        c = scancode_table_upper[scancode];
+    } else if (caps_lock) {
+        /* for letters, use uppercase; for others, use normal */
+        c = scancode_table[scancode];
+        if (c >= 'a' && c <= 'z') {
+            c = c - 'a' + 'A';  /* convert to uppercase */
+        }
+    } else {
+        c = scancode_table[scancode];
+    }
 
     /* store it if it is a printable character */
     if (c != 0) {

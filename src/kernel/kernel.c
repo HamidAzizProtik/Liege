@@ -57,6 +57,22 @@ static void print_char(char c) {
         return; /* nothing to draw, just move cursor */
     }
 
+    /* handle backspace — move cursor back and clear the character */
+    if (c == '\b') {
+        if (cursor_col > 0) {
+            cursor_col--;
+            int index = cursor_row * VGA_WIDTH + cursor_col;
+            vga[index] = (unsigned short)(' ' | (current_color << 8)); /* clear with space */
+        } else if (cursor_row > 0) {
+            /* move to end of previous line */
+            cursor_row--;
+            cursor_col = VGA_WIDTH - 1;
+            int index = cursor_row * VGA_WIDTH + cursor_col;
+            vga[index] = (unsigned short)(' ' | (current_color << 8)); /* clear with space */
+        }
+        return;
+    }
+
     /* calculate position in the flat VGA array from row and col */
     /* row * 80 skips to the right row, + cursor_col gets the exact cell */
     int index = cursor_row * VGA_WIDTH + cursor_col;
@@ -202,11 +218,11 @@ void kernel_main(void) {
     set_color(COLOR_BRIGHT_WHITE);
     print("  VGA initialized\n");
 
-    /* keyboard — initialized but not confirmed working yet */
-    set_color(COLOR_LIGHT_YELLOW);
-    print("  [ -- ]");
-    set_color(COLOR_GRAY);
-    print("  Keyboard        not ready\n");
+    /* keyboard — initialized and ready */
+    set_color(COLOR_LIGHT_GREEN);
+    print("  [ OK ]");
+    set_color(COLOR_BRIGHT_WHITE);
+    print("  Keyboard        ready\n");
 
     /* memory map — not implemented yet */
     set_color(COLOR_LIGHT_YELLOW);
