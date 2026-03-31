@@ -43,6 +43,7 @@ Liege is early in development. Right now it:
 - Runs in 32 bit protected mode
 - Has a working print system with cursor tracking and center alignment
 - Displays a startup screen with a prompt
+- Has a working shell 
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png">
 
@@ -50,8 +51,6 @@ Liege is early in development. Right now it:
 
 The honest next steps in order:
 
-- Keyboard input 
-- A working shell 
 - Memory management
 - A simple filesystem
 

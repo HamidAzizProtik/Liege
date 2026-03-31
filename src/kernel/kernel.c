@@ -48,13 +48,46 @@ static void clear(void) {
     cursor_col = 0;
 }
 
+/* scroll screen up by one line */
+static void scroll(void) {
+    for (int row = 1; row < VGA_HEIGHT; row++) {
+        for (int col = 0; col < VGA_WIDTH; col++) {
+            vga[(row - 1) * VGA_WIDTH + col] =
+                vga[row * VGA_WIDTH + col];
+        }
+    }
+
+    /* clear last line */
+    for (int col = 0; col < VGA_WIDTH; col++) {
+        vga[(VGA_HEIGHT - 1) * VGA_WIDTH + col] =
+            (unsigned short)(' ' | (current_color << 8));
+    }
+
+    cursor_row = VGA_HEIGHT - 1;
+}
+
+/* string compare for shell */
+int strcmp(const char *a, const char *b) {
+    int i = 0;
+    while (a[i] && b[i]) {
+        if (a[i] != b[i]) return 0;
+        i++;
+    }
+    return a[i] == b[i];
+}
+
 /* prints a single character and advances the cursor */
 static void print_char(char c) {
     /* handle newline — move to next row, reset to left edge */
     if (c == '\n') {
         cursor_row++;
         cursor_col = 0;
-        return; /* nothing to draw, just move cursor */
+
+        if (cursor_row >= VGA_HEIGHT) {
+            scroll();
+        }
+
+        return;
     }
 
     /* handle backspace — move cursor back and clear the character */
@@ -247,11 +280,49 @@ void kernel_main(void) {
     print("  / > ");
     set_color(COLOR_BRIGHT_WHITE); /* reset color after prompt */
 
-    /* main loop — echo typed characters to screen */
+    char input[128];
+    int input_len = 0;
+
+    /* main loop — simple shell */
     while (1) {
         char c = keyboard_getchar();
-        if (c != 0) {
-            print_char(c);
+
+        if (c == 0) continue;
+
+        if (c == '\n') {
+            print_char('\n');
+
+            input[input_len] = '\0';  /* terminate string */
+
+            /* COMMAND HANDLER */
+            if (strcmp(input, "hello")) {
+                set_color(COLOR_LIGHT_GREEN);
+                print("Hello from Liege kernel\n");
+                set_color(COLOR_BRIGHT_WHITE);
+                
+            } else {
+                print("Unknown command\n");
+            }
+
+            /* reset buffer */
+            input_len = 0;
+
+            /* prompt again */
+            set_color(COLOR_LIGHT_BLUE);
+            print("  / > ");
+            set_color(COLOR_BRIGHT_WHITE);
+
+        } else if (c == '\b') {
+            if (input_len > 0) {
+                input_len--;
+                print_char('\b');
+            }
+
+        } else {
+            if (input_len < 127) {
+                input[input_len++] = c;
+                print_char(c);
+            }
         }
     }
 }
