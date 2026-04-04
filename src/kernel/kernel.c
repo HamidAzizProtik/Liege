@@ -1,5 +1,7 @@
 #include "cpu/idt.h"
 #include "drivers/keyboard.h"
+#include "memory/multiboot.h"
+#include "memory/pmm.h"
 
 /* raw interrupt entry point defined in isr.asm */
 extern void irq1_handler(void);
@@ -204,7 +206,7 @@ static void panic(const char *msg) {
 }
 
 /* actual kernel code */
-void kernel_main(void) {
+void kernel_main(unsigned int magic, unsigned int addr) {
     clear();
 
     /* initialize IDT and keyboard before anything else */
@@ -255,25 +257,62 @@ void kernel_main(void) {
     set_color(COLOR_LIGHT_GREEN);
     print("  [ OK ]");
     set_color(COLOR_BRIGHT_WHITE);
-    print("  Keyboard        ready\n");
-
-    /* memory map — not implemented yet */
-    set_color(COLOR_LIGHT_YELLOW);
-    print("  [ -- ]");
-    set_color(COLOR_GRAY);
-    print("  Memory map      not ready\n");
+    print("  Keyboard\n");
 
     /* filesystem — not implemented yet */
     set_color(COLOR_LIGHT_YELLOW);
     print("  [ -- ]");
     set_color(COLOR_GRAY);
-    print("  Filesystem      not ready\n");
+    print("  Filesystem\n");
+
+    /* memory map check if ready */
+
+    multiboot_info_t* mb = (multiboot_info_t*) addr;
+
+    if (!(mb->flags & (1 << 6))) {
+        panic("No memory map!");
+    }
+    set_color(COLOR_BRIGHT_WHITE);
+    print("\nMemory Map:\n");
+
+    unsigned int mmap_addr = mb->mmap_addr;
+    unsigned int mmap_end  = mmap_addr + mb->mmap_length;
+
+    while (mmap_addr < mmap_end) {
+        multiboot_memory_map_t* mmap =
+            (multiboot_memory_map_t*) mmap_addr;
+
+        print("Base: ");
+        print_hex((unsigned int)mmap->addr);
+
+        print("  Length: ");
+        print_hex((unsigned int)mmap->len);
+
+        print("  Type: ");
+        print_int(mmap->type);
+
+        print("\n");
+
+        mmap_addr += mmap->size + sizeof(mmap->size);
+    }
 
     /* separator */
     set_color(COLOR_GRAY);
     print("\n");
     print_center("========================================");
     print("\n\n");
+
+    if (magic != 0x2BADB002) {
+        panic("Invalid multiboot magic!");
+    }
+
+    pmm_init(mb);
+
+    void* a = pmm_alloc_page();
+    if (!a) panic("PMM out of memory");
+
+    void* b = pmm_alloc_page();
+    if (!b) panic("PMM out of memory");
 
     /* prompt in light blue */
     set_color(COLOR_LIGHT_BLUE);

@@ -1,7 +1,7 @@
 ENTRY(_start)
 
 SECTIONS {
-    . = 1M;               /* load kernel at 1MB — standard for x86 */
+    . = 1M;
 
     .text ALIGN(4K) : {
         *(.multiboot)
@@ -9,10 +9,12 @@ SECTIONS {
     }
 
     .rodata ALIGN(4K) : { *(.rodata) }
-    .data   ALIGN(4K) : { *(.data)   }
+    .data   ALIGN(4K) : { *(.data) }
 
     .bss ALIGN(4K) : {
         *(COMMON)
         *(.bss)
     }
+
+    _kernel_end = .;
 }

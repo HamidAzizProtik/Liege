@@ -16,11 +16,16 @@ section .text                         ; actual instructions
 global _start                         ; exposes start so that kernel knows its the entry point
 
 ; main entry point of the kernel
-_start:                               ; basically int main(){} but for assembly, start point of main
+_start:
     mov esp, stack_top
+
+    push ebx        ; 2nd argument (addr)
+    push eax        ; 1st argument (magic)
+
     extern kernel_main
     call kernel_main
-    hlt                               ; halt if kernel returns
+
+    hlt                              ; halt if kernel returns
 
 ; code for stack
 section .bss                          ; sections off memory to make a stack required for C
