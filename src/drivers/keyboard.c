@@ -17,6 +17,27 @@ static inline void outb(unsigned short port, unsigned char value) {
     __asm__ volatile ("outb %0, %1" : : "a"(value), "Nd"(port));
 }
 
+#define COM1 0x3F8
+
+static void serial_init(void) {
+    outb(COM1 + 1, 0x00); /* Disable interrupts */
+    outb(COM1 + 3, 0x80); /* Enable DLAB */
+    outb(COM1 + 0, 0x03); /* 38400 baud */
+    outb(COM1 + 1, 0x00);
+    outb(COM1 + 3, 0x03); /* 8 bits, no parity, one stop bit */
+    outb(COM1 + 2, 0xC7); /* Enable FIFO */
+    outb(COM1 + 4, 0x0B); /* RTS/DSR set */
+}
+
+static void serial_putc(char c) {
+    while ((inb(COM1 + 5) & 0x20) == 0);
+    outb(COM1, c);
+}
+
+static void serial_puts(const char *s) {
+    while (*s) serial_putc(*s++);
+}
+
 /* scancode to character lookup table */
 /* index is the scancode, value is the character */
 /* 0 means no printable character for that scancode */
@@ -25,7 +46,7 @@ static char scancode_table[128] = {
    '9', '0', '-', '=', '\b', 0,  'q', 'w', 'e', 'r',  /* 0x0A - 0x13 */
    't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', 0,   /* 0x14 - 0x1D */
    'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',  /* 0x1E - 0x27 */
-  '\'', '`',  0, '\\','z', 'x', 'c', 'v', 'b', 'n',   /* 0x28 - 0x31 */
+   '\'', '`',  0, '\\','z', 'x', 'c', 'v', 'b', 'n',   /* 0x28 - 0x31 */
    'm', ',', '.', '/',  0,   0,   0,  ' ',  0,   0,   /* 0x32 - 0x3B */
 };
 
@@ -97,18 +118,14 @@ void keyboard_handler(void) {
         return;
     }
 
-    /* determine which table to use based on shift and caps lock state */
-    char c;
-    if (shift_pressed) {
-        c = scancode_table_upper[scancode];
-    } else if (caps_lock) {
-        /* for letters, use uppercase; for others, use normal */
-        c = scancode_table[scancode];
-        if (c >= 'a' && c <= 'z') {
-            c = c - 'a' + 'A';  /* convert to uppercase */
-        }
+    /* determine character based on shift and caps lock */
+    char c = scancode_table[scancode];
+    if (c >= 'a' && c <= 'z') {
+        if (shift_pressed ^ caps_lock) c -= 32;  /* to uppercase */
+    } else if (c >= 'A' && c <= 'Z') {
+        if (shift_pressed ^ caps_lock) c += 32;  /* to lowercase, though unlikely */
     } else {
-        c = scancode_table[scancode];
+        if (shift_pressed) c = scancode_table_upper[scancode];
     }
 
     /* store it if it is a printable character */
@@ -124,10 +141,57 @@ char keyboard_getchar(void) {
     return c;
 }
 
+/* wait for keyboard controller input buffer to be empty */
+static void keyboard_wait_input(void) {
+    while (inb(0x64) & 0x02);
+}
+
+/* wait for keyboard controller output buffer to be full */
+static void keyboard_wait_output(void) {
+    while (!(inb(0x64) & 0x01));
+}
+
 /* initializes the keyboard driver */
 void keyboard_init(void) {
+    /* initialize serial for debugging */
+    serial_init();
+
     /* remap PIC first — must happen before registering handlers */
     pic_remap();
+
+    /* initialize PS/2 keyboard controller */
+    /* disable keyboard */
+    keyboard_wait_input();
+    outb(0x64, 0xAD);
+
+    /* disable mouse (second port) */
+    keyboard_wait_input();
+    outb(0x64, 0xA7);
+
+    /* flush output buffer */
+    while (inb(0x64) & 0x01) {
+        inb(0x60);
+    }
+
+    /* read configuration byte */
+    keyboard_wait_input();
+    outb(0x64, 0x20);
+    keyboard_wait_output();
+    unsigned char config = inb(0x60);
+
+    /* enable keyboard interrupt (bit 0) and enable translation (bit 6 = 1) */
+    config |= 0x01;
+    config |= 0x40;
+
+    /* write back configuration */
+    keyboard_wait_input();
+    outb(0x64, 0x60);
+    keyboard_wait_input();
+    outb(0x60, config);
+
+    /* enable keyboard */
+    keyboard_wait_input();
+    outb(0x64, 0xAE);
 
     /* register IRQ1 handler in the IDT at position 33 */
     /* 33 = 32 (PIC offset) + 1 (IRQ1 keyboard) */

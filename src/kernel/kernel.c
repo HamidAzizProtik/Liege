@@ -3,6 +3,17 @@
 #include "memory/multiboot.h"
 #include "memory/pmm.h"
 
+/* I/O port functions */
+static inline void outb(unsigned short port, unsigned char value) {
+    __asm__ volatile ("outb %0, %1" : : "a"(value), "Nd"(port));
+}
+
+static inline unsigned char inb(unsigned short port) {
+    unsigned char value;
+    __asm__ volatile ("inb %1, %0" : "=a"(value) : "Nd"(port));
+    return value;
+}
+
 /* raw interrupt entry point defined in isr.asm */
 extern void irq1_handler(void);
 
@@ -338,7 +349,8 @@ void kernel_main(unsigned int magic, unsigned int addr) {
                 set_color(COLOR_LIGHT_GREEN);
                 print("Hello from Liege kernel\n");
                 set_color(COLOR_BRIGHT_WHITE);
-                
+            } else if (strcmp(input, "clear")) {
+                clear();
             } else {
                 print("Unknown command\n");
             }

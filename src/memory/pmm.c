@@ -31,17 +31,18 @@ void pmm_init(multiboot_info_t* mb)
 
     bitmap = (uint8_t*)&_kernel_end;
 
+    /* mark all upper memory as free initially */
     for (uint32_t i = 0; i < total_pages; i++)
-        set_bit(i);
-
-    /* mark lower memory as usable (simple safe assumption) */
-    for (uint32_t i = 0; i < total_pages / 2; i++)
         clear_bit(i);
 
-    /* protect kernel + bitmap memory */
-    uint32_t kernel_pages = ((uint32_t)&_kernel_end) / PAGE_SIZE;
+    /* protect kernel memory (from 1MB) */
+    uint32_t kernel_pages = ((uint32_t)&_kernel_end - 0x100000) / PAGE_SIZE;
 
-    for (uint32_t i = 0; i <= kernel_pages + 1; i++)
+    /* protect bitmap memory */
+    uint32_t bitmap_size = (total_pages + 7) / 8;
+    uint32_t bitmap_pages = (bitmap_size + PAGE_SIZE - 1) / PAGE_SIZE;
+
+    for (uint32_t i = 0; i <= kernel_pages + bitmap_pages; i++)
         set_bit(i);
 }
 
@@ -52,7 +53,7 @@ void* pmm_alloc_page()
         if (!test_bit(i))
         {
             set_bit(i);
-            return (void*)(i * PAGE_SIZE);
+            return (void*)((i + 256) * PAGE_SIZE);  /* 256 * 4096 = 1MB */
         }
     }
 
@@ -61,7 +62,7 @@ void* pmm_alloc_page()
 
 void pmm_free_page(void* addr)
 {
-    uint32_t index = (uint32_t)addr / PAGE_SIZE;
+    uint32_t index = ((uint32_t)addr / PAGE_SIZE) - 256;
 
     if (index >= total_pages)
         return;
