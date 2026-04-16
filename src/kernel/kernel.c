@@ -349,8 +349,18 @@ void kernel_main(unsigned int magic, unsigned int addr) {
                 set_color(COLOR_LIGHT_GREEN);
                 print("Hello from Liege kernel\n");
                 set_color(COLOR_BRIGHT_WHITE);
+
+            } else if (strcmp(input, "help")) {
+                set_color(COLOR_LIGHT_YELLOW);
+                print("Available commands:\n");
+                set_color(COLOR_BRIGHT_WHITE);
+                print("  help  - Show this list\n");
+                print("  hello - Greet the kernel\n");
+                print("  clear - Clear the screen\n");
+
             } else if (strcmp(input, "clear")) {
                 clear();
+
             } else {
                 print("Unknown command\n");
             }
