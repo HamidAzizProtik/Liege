@@ -66,9 +66,9 @@ void kernel_main(uint32_t magic, uint32_t addr) {
     screen_pitch  = mb->framebuffer_pitch;
     back_buffer   = (uint32_t*)0x800000; 
 
-    draw_rect(0, 0, screen_width, screen_height, 0x0A0A0A); 
+    draw_rect(0, 0, screen_width, screen_height, 0x1d1a21); 
 
-    draw_rect(0, 0, screen_width, 24, 0x1F1F1F);
+    draw_rect(0, 0, screen_width, 24, 0x2b2730);
     draw_string("Liege Kernel v0.1.0-alpha", 10, 4, 0xAAAAAA);
     draw_string("tty0", screen_width - 45, 4, 0x555555);
 
