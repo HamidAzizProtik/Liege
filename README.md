@@ -39,11 +39,10 @@ The technical goal is educational — this is a project I'm building to learn, a
 
 Liege is early in development. Right now it:
 
+- Features a VESA linear framebuffer at 1024x768 @ 32bpp
 - Boots on x86 via GRUB multiboot
 - Runs in 32 bit protected mode
-- Has a working print system with cursor tracking and center alignment
-- Displays a startup screen with a prompt
-- Has a working shell 
+- Displays a startup screen 
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png">
 
@@ -51,7 +50,7 @@ Liege is early in development. Right now it:
 
 The honest next steps in order:
 
-- Memory management
+- Proper memory management
 - A simple filesystem
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png">

@@ -1,24 +1,37 @@
 #ifndef MULTIBOOT_H
 #define MULTIBOOT_H
+#include <stdint.h>
 
-typedef struct multiboot_info {
-    unsigned int flags;
-    unsigned int mem_lower;
-    unsigned int mem_upper;
-    unsigned int boot_device;
-    unsigned int cmdline;
-    unsigned int mods_count;
-    unsigned int mods_addr;
-    unsigned int syms[4];
-    unsigned int mmap_length;
-    unsigned int mmap_addr;
-} multiboot_info_t;
+typedef struct {
+    uint32_t flags;
+    uint32_t mem_lower;
+    uint32_t mem_upper;
+    uint32_t boot_device;
+    uint32_t cmdline;
+    uint32_t mods_count;
+    uint32_t mods_addr;
+    uint32_t syms[4];
+    uint32_t mmap_length;
+    uint32_t mmap_addr;
+    uint32_t drives_length;
+    uint32_t drives_addr;
+    uint32_t config_table;
+    uint32_t boot_loader_name;
+    uint32_t apm_table;
+    uint32_t vbe_control_info;
+    uint32_t vbe_mode_info;
+    uint16_t vbe_mode;
+    uint16_t vbe_interface_seg;
+    uint16_t vbe_interface_off;
+    uint16_t vbe_interface_len;
 
-typedef struct multiboot_memory_map {
-    unsigned int size;
-    unsigned long long addr;
-    unsigned long long len;
-    unsigned int type;
-} multiboot_memory_map_t;
-
+    uint32_t framebuffer_addr_low; 
+    uint32_t framebuffer_addr_high;
+    uint32_t framebuffer_pitch;
+    uint32_t framebuffer_width;
+    uint32_t framebuffer_height;
+    uint8_t  framebuffer_bpp;
+    uint8_t  framebuffer_type;
+    uint8_t  color_info[6];
+} __attribute__((packed)) multiboot_info_t;
 #endif

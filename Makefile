@@ -57,4 +57,4 @@ debug: $(BUILD)/kernel.iso
 	qemu-system-i386 -cdrom $(BUILD)/kernel.iso -m 64M -s -S
 
 clean:
-	rm -rf $(BUILD)
+	rm -rf build/*.o build/*.elf build/*.iso build/iso
