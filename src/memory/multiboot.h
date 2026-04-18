@@ -1,6 +1,7 @@
 #ifndef MULTIBOOT_H
 #define MULTIBOOT_H
-#include <stdint.h>
+
+#include "stdint.h" 
 
 typedef struct {
     uint32_t flags;
@@ -24,8 +25,7 @@ typedef struct {
     uint16_t vbe_interface_seg;
     uint16_t vbe_interface_off;
     uint16_t vbe_interface_len;
-
-    uint32_t framebuffer_addr_low; 
+    uint32_t framebuffer_addr_low;
     uint32_t framebuffer_addr_high;
     uint32_t framebuffer_pitch;
     uint32_t framebuffer_width;
@@ -34,4 +34,5 @@ typedef struct {
     uint8_t  framebuffer_type;
     uint8_t  color_info[6];
 } __attribute__((packed)) multiboot_info_t;
+
 #endif
