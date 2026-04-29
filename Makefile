@@ -1,7 +1,6 @@
 CC      = i686-elf-gcc
 AS      = nasm
 LD      = i686-elf-ld
-
 CFLAGS  = -ffreestanding -O2 -Wall -Wextra -std=c11
 ASFLAGS = -f elf32
 LDFLAGS = -T linker.ld -nostdlib
@@ -44,8 +43,9 @@ $(BUILD)/kernel.elf: $(OBJS)
 $(BUILD)/kernel.iso: $(BUILD)/kernel.elf
 	mkdir -p $(BUILD)/iso/boot/grub
 	cp $(BUILD)/kernel.elf $(BUILD)/iso/boot/
-	printf 'menuentry "Liege" {\n    multiboot /boot/kernel.elf\n}\n' > $(BUILD)/iso/boot/grub/grub.cfg
-	grub-mkrescue -o $@ $(BUILD)/iso > /dev/null 2>&1
+	printf 'set gfxmode=1024x768x32\nset gfxpayload=keep\nmenuentry "Liege" {\n    multiboot /boot/kernel.elf\n}\n' \
+		> $(BUILD)/iso/boot/grub/grub.cfg
+	grub-mkrescue -o $@ $(BUILD)/iso 2>/dev/null
 
 $(BUILD):
 	mkdir -p $(BUILD)
